@@ -1,0 +1,2813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'self';"
+  />
+  <title>Admin | Extension Distribution Portal</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-muted: #f8fafc;
+      --text: #172033;
+      --text-muted: #5c687a;
+      --border: #dce3ec;
+      --primary: #2457d6;
+      --primary-hover: #1c48b6;
+      --success: #147a4b;
+      --success-bg: #eaf8f1;
+      --warning: #8a5a00;
+      --warning-bg: #fff7df;
+      --danger: #b42318;
+      --danger-bg: #fff0ee;
+      --shadow: 0 14px 40px rgba(31, 48, 80, 0.09);
+      --radius: 18px;
+      --focus: 0 0 0 3px rgba(36, 87, 214, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    a {
+      color: var(--primary);
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button,
+    a.button-link {
+      min-height: 44px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:disabled,
+    input:disabled,
+    textarea:disabled,
+    select:disabled {
+      cursor: not-allowed;
+      opacity: 0.58;
+    }
+
+    :focus-visible {
+      outline: none;
+      box-shadow: var(--focus);
+    }
+
+    .site-header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner,
+    .container,
+    .site-footer-inner {
+      width: min(1160px, calc(100% - 32px));
+      margin-inline: auto;
+    }
+
+    .header-inner {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 850;
+      letter-spacing: -0.02em;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .admin-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--surface-muted);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-weight: 800;
+      font-size: 0.82rem;
+    }
+
+    .admin-status::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .container {
+      padding-block: 34px 60px;
+    }
+
+    .auth-shell {
+      min-height: calc(100vh - 160px);
+      display: grid;
+      place-items: center;
+      padding-block: 40px;
+    }
+
+    .auth-card {
+      width: min(480px, 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      padding: 32px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.15;
+      margin-top: 0;
+      letter-spacing: -0.025em;
+    }
+
+    h1 {
+      font-size: clamp(1.9rem, 3vw, 2.7rem);
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
+
+    .muted {
+      color: var(--text-muted);
+    }
+
+    .demo-warning {
+      border: 1px solid #e9d18d;
+      background: var(--warning-bg);
+      color: #624800;
+      border-radius: 12px;
+      padding: 13px 15px;
+      margin: 18px 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid #bfc9d6;
+      border-radius: 11px;
+      background: #ffffff;
+      color: var(--text);
+      padding: 11px 13px;
+      min-height: 44px;
+    }
+
+    textarea {
+      min-height: 115px;
+      resize: vertical;
+    }
+
+    input[type="file"] {
+      padding: 8px;
+    }
+
+    .help-text {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      margin: 0;
+    }
+
+    .button-row,
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 18px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: 11px;
+      border: 1px solid transparent;
+      font-weight: 800;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .button:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .button.primary {
+      color: #ffffff;
+      background: var(--primary);
+    }
+
+    .button.primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+
+    .button.secondary {
+      color: var(--text);
+      background: #ffffff;
+      border-color: var(--border);
+    }
+
+    .button.danger {
+      color: #ffffff;
+      background: var(--danger);
+    }
+
+    .button.ghost {
+      color: var(--primary);
+      background: transparent;
+      border-color: transparent;
+    }
+
+    .dashboard {
+      display: grid;
+      gap: 22px;
+    }
+
+    .dashboard-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .dashboard-header p {
+      margin: 0;
+      color: var(--text-muted);
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      padding: 25px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .card-header p {
+      margin: 0;
+      color: var(--text-muted);
+    }
+
+    .preview {
+      margin-top: 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface-muted);
+      padding: 18px;
+    }
+
+    .preview-grid,
+    .extension-grid,
+    .storage-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 20px;
+    }
+
+    .preview-item,
+    .detail,
+    .storage-item {
+      min-width: 0;
+      padding-bottom: 11px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .preview-label,
+    .detail dt,
+    .storage-label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 850;
+      margin-bottom: 4px;
+    }
+
+    .preview-value,
+    .detail dd,
+    .storage-value {
+      margin: 0;
+      word-break: break-word;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+    .remove-file {
+      margin-top: 14px;
+    }
+
+    .notice {
+      margin-top: 16px;
+      border: 1px solid #e9d18d;
+      background: var(--warning-bg);
+      color: #624800;
+      border-radius: 12px;
+      padding: 13px 15px;
+    }
+
+    .notice.danger {
+      border-color: #f1c0bb;
+      background: var(--danger-bg);
+      color: #7b1a12;
+    }
+
+    .storage-bar {
+      height: 9px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #e4e9f0;
+      margin-top: 10px;
+    }
+
+    .storage-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.2s ease;
+    }
+
+    .progress-area {
+      margin-top: 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface-muted);
+      padding: 18px;
+    }
+
+    .progress-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 10px;
+      font-weight: 800;
+    }
+
+    progress {
+      width: 100%;
+      height: 12px;
+      accent-color: var(--primary);
+    }
+
+    .stage-list {
+      list-style: none;
+      margin: 14px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 7px;
+    }
+
+    .stage-item {
+      padding: 8px 10px;
+      border-radius: 9px;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+    }
+
+    .stage-item.active {
+      border-color: #c8d5f8;
+      background: #eef3ff;
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    .stage-item.done {
+      color: var(--success);
+      background: var(--success-bg);
+    }
+
+    .empty-state {
+      padding: 28px;
+      border: 1px dashed #c4cedb;
+      border-radius: 14px;
+      background: var(--surface-muted);
+    }
+
+    .empty-state p {
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+
+    .extension-grid {
+      margin-top: 18px;
+    }
+
+    .detail dt {
+      margin: 0 0 4px;
+    }
+
+    .detail dd {
+      margin: 0;
+    }
+
+    .toast-region {
+      position: fixed;
+      inset: auto 18px 18px auto;
+      z-index: 200;
+      width: min(380px, calc(100% - 36px));
+      display: grid;
+      gap: 10px;
+    }
+
+    .toast {
+      padding: 13px 15px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      box-shadow: var(--shadow);
+    }
+
+    .toast.success {
+      border-color: #bde6d1;
+      background: var(--success-bg);
+    }
+
+    .toast.error {
+      border-color: #f2c1bb;
+      background: var(--danger-bg);
+    }
+
+    .field-error {
+      margin-top: 12px;
+      border: 1px solid #f2c1bb;
+      background: var(--danger-bg);
+      color: #7b1a12;
+      border-radius: 11px;
+      padding: 11px 13px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: rgba(9, 18, 32, 0.58);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .modal {
+      width: min(560px, 100%);
+      max-height: min(760px, calc(100vh - 40px));
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+      padding: 24px;
+    }
+
+    .modal-title {
+      margin-bottom: 10px;
+    }
+
+    .modal-message {
+      margin: 0;
+      color: var(--text-muted);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+
+    .danger-title {
+      color: var(--danger);
+    }
+
+    .site-footer {
+      border-top: 1px solid var(--border);
+      background: #eef2f7;
+    }
+
+    .site-footer-inner {
+      padding-block: 22px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .site-footer p {
+      margin: 4px 0;
+    }
+
+    code {
+      padding: 2px 6px;
+      background: #e9eef6;
+      border-radius: 6px;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 780px) {
+      .form-grid,
+      .preview-grid,
+      .extension-grid,
+      .storage-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .wide {
+        grid-column: auto;
+      }
+
+      .header-inner {
+        align-items: flex-start;
+        padding-block: 14px;
+      }
+
+      .header-actions {
+        justify-content: flex-start;
+      }
+
+      .auth-card,
+      .card {
+        padding: 21px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header id="siteHeader" class="site-header" hidden>
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="Extension Distribution Portal home">
+        Extension Distribution Portal
+      </a>
+
+      <div class="header-actions">
+        <div class="admin-status" aria-label="Administrator status">
+          Demo admin signed in
+        </div>
+        <button id="logoutButton" class="button secondary" type="button">
+          Log out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="loginSection" class="auth-shell">
+    <section class="auth-card" aria-labelledby="loginTitle">
+      <h1 id="loginTitle">Admin sign in</h1>
+      <p class="muted">
+        Sign in to manage the current extension stored in this browser.
+      </p>
+
+      <div class="demo-warning">
+        <strong>Demo authentication only.</strong> This is not production security.
+        The password is contained in this frontend source code and should not be used
+        as a real administrator credential.
+      </div>
+
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="adminPassword">Demo admin password</label>
+          <input
+            id="adminPassword"
+            name="adminPassword"
+            type="password"
+            autocomplete="current-password"
+            required
+            aria-describedby="loginError"
+          />
+        </div>
+
+        <div id="loginError" class="field-error" role="alert" hidden></div>
+
+        <div class="button-row">
+          <button class="button primary" type="submit">Sign in</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <main id="dashboardSection" class="container dashboard" hidden>
+    <section class="dashboard-header" aria-labelledby="dashboardTitle">
+      <div>
+        <h1 id="dashboardTitle">Extension admin dashboard</h1>
+        <p>Manage one locally stored Chrome Extension ZIP package.</p>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="uploadHeading">
+      <div class="card-header">
+        <div>
+          <h2 id="uploadHeading">Upload extension</h2>
+          <p>
+            Save a ZIP Blob and its metadata to IndexedDB under the fixed key
+            <code>current</code>.
+          </p>
+        </div>
+      </div>
+
+      <form id="uploadForm" novalidate>
+        <div class="form-grid">
+          <div class="field full">
+            <label for="zipFile">ZIP file</label>
+            <input
+              id="zipFile"
+              name="zipFile"
+              type="file"
+              accept=".zip,application/zip,application/x-zip-compressed,application/octet-stream"
+              required
+              aria-describedby="fileHelp"
+            />
+            <p id="fileHelp" class="help-text">
+              ZIP files only. Maximum size: 50 MB. The file is stored as a Blob;
+              it is never converted to base64.
+            </p>
+          </div>
+
+          <div class="field">
+            <label for="extensionNameInput">Extension name</label>
+            <input
+              id="extensionNameInput"
+              name="extensionName"
+              type="text"
+              maxlength="80"
+              autocomplete="off"
+              required
+            />
+            <p class="help-text">2–80 characters.</p>
+          </div>
+
+          <div class="field">
+            <label for="versionInput">Version</label>
+            <input
+              id="versionInput"
+              name="version"
+              type="text"
+              maxlength="30"
+              autocomplete="off"
+              required
+            />
+            <p class="help-text">1–30 characters.</p>
+          </div>
+
+          <div class="field">
+            <label for="categoryInput">Category</label>
+            <input
+              id="categoryInput"
+              name="category"
+              type="text"
+              maxlength="50"
+              autocomplete="off"
+              required
+            />
+            <p class="help-text">Use a short category such as Productivity.</p>
+          </div>
+
+          <div class="field">
+            <label for="supportUrlInput">Support URL (optional)</label>
+            <input
+              id="supportUrlInput"
+              name="supportUrl"
+              type="url"
+              inputmode="url"
+              maxlength="500"
+              autocomplete="off"
+              placeholder="https://example.com/support"
+            />
+            <p class="help-text">Only https:// URLs are accepted.</p>
+          </div>
+
+          <div class="field full">
+            <label for="descriptionInput">Description</label>
+            <textarea
+              id="descriptionInput"
+              name="description"
+              maxlength="1000"
+              required
+            ></textarea>
+            <p class="help-text">Maximum 1000 characters.</p>
+          </div>
+
+          <div class="field full">
+            <label for="changelogInput">Changelog (optional)</label>
+            <textarea
+              id="changelogInput"
+              name="changelog"
+              maxlength="2000"
+            ></textarea>
+            <p class="help-text">Maximum 2000 characters.</p>
+          </div>
+        </div>
+
+        <div id="selectedFilePreview" class="preview" hidden>
+          <h3>Upload preview</h3>
+
+          <div class="preview-grid">
+            <div class="preview-item">
+              <span class="preview-label">File name</span>
+              <p id="previewFileName" class="preview-value">—</p>
+            </div>
+
+            <div class="preview-item">
+              <span class="preview-label">Human-readable size</span>
+              <p id="previewFileSize" class="preview-value">—</p>
+            </div>
+
+            <div class="preview-item">
+              <span class="preview-label">File type</span>
+              <p id="previewFileType" class="preview-value">—</p>
+            </div>
+
+            <div class="preview-item">
+              <span class="preview-label">Last modified</span>
+              <p id="previewLastModified" class="preview-value">—</p>
+            </div>
+
+            <div class="preview-item">
+              <span class="preview-label">Extension name</span>
+              <p id="previewExtensionName" class="preview-value">—</p>
+            </div>
+
+            <div class="preview-item">
+              <span class="preview-label">Version</span>
+              <p id="previewVersion" class="preview-value">—</p>
+            </div>
+
+            <div class="preview-item wide">
+              <span class="preview-label">Description</span>
+              <p id="previewDescription" class="preview-value">—</p>
+            </div>
+
+            <div class="preview-item">
+              <span class="preview-label">Category</span>
+              <p id="previewCategory" class="preview-value">—</p>
+            </div>
+
+            <div class="preview-item">
+              <span class="preview-label">Support URL</span>
+              <p id="previewSupportUrl" class="preview-value">—</p>
+            </div>
+
+            <div class="preview-item wide">
+              <span class="preview-label">Changelog</span>
+              <p id="previewChangelog" class="preview-value">—</p>
+            </div>
+
+            <div class="preview-item wide">
+              <span class="preview-label">Estimated storage status</span>
+              <p id="previewStorageStatus" class="preview-value">Checking…</p>
+            </div>
+          </div>
+
+          <div class="remove-file">
+            <button id="removeSelectedFileButton" class="button ghost" type="button">
+              Remove selected file
+            </button>
+          </div>
+        </div>
+
+        <div id="uploadError" class="field-error" role="alert" hidden></div>
+
+        <div class="button-row">
+          <button id="uploadButton" class="button primary" type="submit">
+            Upload Extension
+          </button>
+          <button id="resetButton" class="button secondary" type="reset">
+            Reset
+          </button>
+        </div>
+
+        <div id="uploadProgress" class="progress-area" hidden aria-live="polite">
+          <div class="progress-heading">
+            <span>Local processing</span>
+            <span id="progressStatus">Validating file</span>
+          </div>
+
+          <progress id="progressBar" max="4" value="0"></progress>
+
+          <ol class="stage-list" aria-label="Upload processing stages">
+            <li class="stage-item" data-stage-index="0">Validating file</li>
+            <li class="stage-item" data-stage-index="1">Preparing extension data</li>
+            <li class="stage-item" data-stage-index="2">Saving locally</li>
+            <li class="stage-item" data-stage-index="3">Finalizing</li>
+            <li class="stage-item" data-stage-index="4">Complete</li>
+          </ol>
+
+          <p class="help-text">
+            This is local IndexedDB processing. No network upload is taking place and
+            no fake network percentage is shown.
+          </p>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="currentHeading">
+      <div class="card-header">
+        <div>
+          <h2 id="currentHeading">Current extension</h2>
+          <p>The currently published local record uses the fixed key <code>current</code>.</p>
+        </div>
+      </div>
+
+      <div id="currentExtensionCard" hidden>
+        <h3 id="currentExtensionName">—</h3>
+
+        <dl class="extension-grid">
+          <div class="detail">
+            <dt>Version</dt>
+            <dd id="currentVersion">—</dd>
+          </div>
+
+          <div class="detail">
+            <dt>Category</dt>
+            <dd id="currentCategory">—</dd>
+          </div>
+
+          <div class="detail">
+            <dt>ZIP file name</dt>
+            <dd id="currentFileName">—</dd>
+          </div>
+
+          <div class="detail">
+            <dt>File size</dt>
+            <dd id="currentFileSize">—</dd>
+          </div>
+
+          <div class="detail">
+            <dt>Uploaded date</dt>
+            <dd id="currentUploadedDate">—</dd>
+          </div>
+
+          <div class="detail">
+            <dt>Last updated</dt>
+            <dd id="currentUpdatedDate">—</dd>
+          </div>
+
+          <div class="detail">
+            <dt>Status</dt>
+            <dd id="currentStatus">—</dd>
+          </div>
+
+          <div class="detail">
+            <dt>Support URL</dt>
+            <dd>
+              <a id="currentSupportLink" href="#" hidden></a>
+              <span id="currentSupportText">Not provided</span>
+            </dd>
+          </div>
+
+          <div class="detail wide">
+            <dt>Description</dt>
+            <dd id="currentDescription">—</dd>
+          </div>
+
+          <div id="currentChangelogRow" class="detail wide" hidden>
+            <dt>Changelog</dt>
+            <dd id="currentChangelog">—</dd>
+          </div>
+        </dl>
+
+        <div class="card-actions">
+          <button id="replaceButton" class="button secondary" type="button">
+            Replace extension
+          </button>
+          <button id="deleteButton" class="button danger" type="button">
+            Delete extension
+          </button>
+          <button id="viewMetadataButton" class="button secondary" type="button">
+            View metadata
+          </button>
+          <button id="backupButton" class="button secondary" type="button">
+            Download a backup copy
+          </button>
+        </div>
+      </div>
+
+      <div id="currentEmptyState" class="empty-state">
+        <h3 id="currentEmptyTitle">No extension has been uploaded yet.</h3>
+        <p id="currentEmptyMessage">
+          Upload a trusted Chrome Extension ZIP file to publish it on the distribution page.
+        </p>
+      </div>
+
+      <div id="currentReadError" class="field-error" role="alert" hidden></div>
+    </section>
+
+    <section class="card" aria-labelledby="storageHeading">
+      <div class="card-header">
+        <div>
+          <h2 id="storageHeading">Storage information</h2>
+          <p>Approximate browser storage information, when the Storage Manager API is available.</p>
+        </div>
+      </div>
+
+      <div class="storage-grid">
+        <div class="storage-item">
+          <span class="storage-label">Storage method</span>
+          <p class="storage-value">IndexedDB + Blob</p>
+        </div>
+
+        <div class="storage-item">
+          <span class="storage-label">Server upload</span>
+          <p class="storage-value">No</p>
+        </div>
+
+        <div class="storage-item">
+          <span class="storage-label">Estimated usage</span>
+          <p id="storageUsage" class="storage-value">Unavailable</p>
+        </div>
+
+        <div class="storage-item">
+          <span class="storage-label">Estimated quota</span>
+          <p id="storageQuota" class="storage-value">Unavailable</p>
+        </div>
+      </div>
+
+      <div class="storage-bar" aria-hidden="true">
+        <div id="storageBarFill" class="storage-bar-fill"></div>
+      </div>
+
+      <p id="storageStatusText" class="help-text" style="margin-top: 10px;">
+        Storage estimate is optional and may not be available in every browser context.
+      </p>
+
+      <div class="notice">
+        The ZIP is stored in this browser’s IndexedDB. Other devices will not automatically
+        see it. Clearing browser site data may delete the extension. A production portal
+        requires a backend and persistent file storage.
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="helpHeading">
+      <div class="card-header">
+        <div>
+          <h2 id="helpHeading">Help and deployment notes</h2>
+          <p>Important limitations of this frontend-only local demo.</p>
+        </div>
+      </div>
+
+      <div class="notice danger">
+        <strong>Demo authentication only.</strong>
+        The administrator password is present in this frontend source code. It provides
+        no real production security and must not be treated as a secure authentication system.
+      </div>
+
+      <div class="notice">
+        Browsers may restrict IndexedDB or file behavior when these files are opened directly
+        using <strong>file://</strong>. Use a local server during development:
+        <p style="margin: 8px 0 0;"><code>python -m http.server 8000</code></p>
+        <p style="margin: 8px 0 0;">
+          Then visit <code>http://localhost:8000/index.html</code> and
+          <code>http://localhost:8000/admin.html</code>.
+        </p>
+      </div>
+
+      <div class="notice">
+        Never inject ZIP contents into the page, evaluate uploaded code, execute JavaScript
+        from the ZIP, or render extracted files as HTML. This application does not unpack
+        or execute the uploaded ZIP.
+      </div>
+    </section>
+  </main>
+
+  <footer id="siteFooter" class="site-footer" hidden>
+    <div class="site-footer-inner">
+      <p><strong>Local demo disclaimer:</strong> This frontend-only admin portal stores data locally in IndexedDB.</p>
+      <p>No password, ZIP, token, or credential is stored in IndexedDB.</p>
+    </div>
+  </footer>
+
+  <div id="modalBackdrop" class="modal-backdrop" hidden>
+    <section
+      id="modalDialog"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+      aria-describedby="modalMessage"
+      tabindex="-1"
+    >
+      <h2 id="modalTitle" class="modal-title">Confirmation</h2>
+      <p id="modalMessage" class="modal-message"></p>
+
+      <div class="modal-actions">
+        <button id="modalCancelButton" class="button secondary" type="button">
+          Cancel
+        </button>
+        <button id="modalConfirmButton" class="button primary" type="button">
+          Confirm
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    "use strict";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      /*
+        Demo authentication only.
+        This password is deliberately visible in source code to make the demo behavior clear.
+        It is NOT production security and is never stored in IndexedDB.
+      */
+      const DEMO_ADMIN_PASSWORD = "ChangeMe123!";
+      const SESSION_KEY = "extension_demo_admin_session";
+
+      const DB_NAME = "LocalExtensionDemoDB";
+      const DB_VERSION = 1;
+      const STORE_NAME = "extensions";
+      const CURRENT_KEY = "current";
+
+      const MAX_FILE_SIZE = 50 * 1024 * 1024;
+      const DESCRIPTION_MAX = 1000;
+      const CHANGELOG_MAX = 2000;
+      const NAME_MIN = 2;
+      const NAME_MAX = 80;
+      const VERSION_MIN = 1;
+      const VERSION_MAX = 30;
+      const CATEGORY_MIN = 1;
+      const CATEGORY_MAX = 50;
+      const SUPPORT_URL_MAX = 500;
+
+      const ALLOWED_ZIP_MIME_TYPES = new Set([
+        "application/zip",
+        "application/x-zip-compressed",
+        "multipart/x-zip",
+        "application/octet-stream"
+      ]);
+
+      const loginSection = document.getElementById("loginSection");
+      const dashboardSection = document.getElementById("dashboardSection");
+      const siteHeader = document.getElementById("siteHeader");
+      const siteFooter = document.getElementById("siteFooter");
+
+      const loginForm = document.getElementById("loginForm");
+      const adminPassword = document.getElementById("adminPassword");
+      const loginError = document.getElementById("loginError");
+      const logoutButton = document.getElementById("logoutButton");
+
+      const uploadForm = document.getElementById("uploadForm");
+      const zipFile = document.getElementById("zipFile");
+      const extensionNameInput = document.getElementById("extensionNameInput");
+      const versionInput = document.getElementById("versionInput");
+      const descriptionInput = document.getElementById("descriptionInput");
+      const categoryInput = document.getElementById("categoryInput");
+      const changelogInput = document.getElementById("changelogInput");
+      const supportUrlInput = document.getElementById("supportUrlInput");
+
+      const uploadError = document.getElementById("uploadError");
+      const uploadButton = document.getElementById("uploadButton");
+      const resetButton = document.getElementById("resetButton");
+      const removeSelectedFileButton = document.getElementById("removeSelectedFileButton");
+
+      const selectedFilePreview = document.getElementById("selectedFilePreview");
+      const previewFileName = document.getElementById("previewFileName");
+      const previewFileSize = document.getElementById("previewFileSize");
+      const previewFileType = document.getElementById("previewFileType");
+      const previewLastModified = document.getElementById("previewLastModified");
+      const previewExtensionName = document.getElementById("previewExtensionName");
+      const previewVersion = document.getElementById("previewVersion");
+      const previewDescription = document.getElementById("previewDescription");
+      const previewCategory = document.getElementById("previewCategory");
+      const previewChangelog = document.getElementById("previewChangelog");
+      const previewSupportUrl = document.getElementById("previewSupportUrl");
+      const previewStorageStatus = document.getElementById("previewStorageStatus");
+
+      const uploadProgress = document.getElementById("uploadProgress");
+      const progressBar = document.getElementById("progressBar");
+      const progressStatus = document.getElementById("progressStatus");
+      const stageItems = Array.from(document.querySelectorAll(".stage-item"));
+
+      const currentExtensionCard = document.getElementById("currentExtensionCard");
+      const currentEmptyState = document.getElementById("currentEmptyState");
+      const currentEmptyTitle = document.getElementById("currentEmptyTitle");
+      const currentEmptyMessage = document.getElementById("currentEmptyMessage");
+      const currentReadError = document.getElementById("currentReadError");
+
+      const currentExtensionName = document.getElementById("currentExtensionName");
+      const currentVersion = document.getElementById("currentVersion");
+      const currentCategory = document.getElementById("currentCategory");
+      const currentFileName = document.getElementById("currentFileName");
+      const currentFileSize = document.getElementById("currentFileSize");
+      const currentUploadedDate = document.getElementById("currentUploadedDate");
+      const currentUpdatedDate = document.getElementById("currentUpdatedDate");
+      const currentStatus = document.getElementById("currentStatus");
+      const currentDescription = document.getElementById("currentDescription");
+      const currentSupportLink = document.getElementById("currentSupportLink");
+      const currentSupportText = document.getElementById("currentSupportText");
+      const currentChangelogRow = document.getElementById("currentChangelogRow");
+      const currentChangelog = document.getElementById("currentChangelog");
+
+      const replaceButton = document.getElementById("replaceButton");
+      const deleteButton = document.getElementById("deleteButton");
+      const viewMetadataButton = document.getElementById("viewMetadataButton");
+      const backupButton = document.getElementById("backupButton");
+
+      const storageUsage = document.getElementById("storageUsage");
+      const storageQuota = document.getElementById("storageQuota");
+      const storageBarFill = document.getElementById("storageBarFill");
+      const storageStatusText = document.getElementById("storageStatusText");
+
+      const modalBackdrop = document.getElementById("modalBackdrop");
+      const modalDialog = document.getElementById("modalDialog");
+      const modalTitle = document.getElementById("modalTitle");
+      const modalMessage = document.getElementById("modalMessage");
+      const modalCancelButton = document.getElementById("modalCancelButton");
+      const modalConfirmButton = document.getElementById("modalConfirmButton");
+
+      const toastRegion = document.getElementById("toastRegion");
+
+      let sessionLoginState = false;
+      let selectedFile = null;
+      let currentRecord = null;
+      let pendingUpload = null;
+      let modalConfirmAction = null;
+      let modalPreviousFocus = null;
+      let toastTimer = null;
+      let isBusy = false;
+
+      function showToast(message, type) {
+        if (!toastRegion) return;
+
+        toastRegion.textContent = "";
+
+        const toast = document.createElement("div");
+        toast.className = "toast " + (type || "");
+        toast.setAttribute("role", type === "error" ? "alert" : "status");
+        toast.textContent = message;
+
+        toastRegion.appendChild(toast);
+
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => {
+          toast.remove();
+        }, 4500);
+      }
+
+      function setError(element, message) {
+        if (!element) return;
+
+        element.textContent = message || "";
+        element.hidden = !message;
+      }
+
+      function formatBytes(bytes) {
+        if (!Number.isFinite(bytes) || bytes < 0) return "Unavailable";
+        if (bytes === 0) return "0 Bytes";
+
+        const units = ["Bytes", "KB", "MB", "GB", "TB"];
+        const exponent = Math.min(
+          Math.floor(Math.log(bytes) / Math.log(1024)),
+          units.length - 1
+        );
+        const value = bytes / Math.pow(1024, exponent);
+        const decimals = exponent === 0 ? 0 : value >= 10 ? 1 : 2;
+
+        return value.toFixed(decimals) + " " + units[exponent];
+      }
+
+      function formatDate(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "Unavailable";
+
+        return new Intl.DateTimeFormat(undefined, {
+          dateStyle: "medium",
+          timeStyle: "short"
+        }).format(date);
+      }
+
+      function hasUnsafeControlCharacters(value) {
+        return /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(value);
+      }
+
+      function isSafeMetadataText(value) {
+        return !hasUnsafeControlCharacters(value) && !/[<>]/.test(value);
+      }
+
+      function sanitizeDownloadFilename(input) {
+        let base = String(input || "extension")
+          .replace(/\.zip$/i, "")
+          .replace(/[\/\\?%*:|"<>[\]\u0000-\u001F\u007F]/g, "-")
+          .replace(/\s+/g, "-")
+          .replace(/\.+/g, ".")
+          .replace(/^\.+|\.+$/g, "")
+          .trim();
+
+        if (!base) base = "extension";
+        base = base.slice(0, 80);
+
+        return base + ".zip";
+      }
+
+      function isSafeHttpsUrl(value) {
+        if (!value) return true;
+
+        try {
+          const parsed = new URL(value);
+          return parsed.protocol === "https:" && !hasUnsafeControlCharacters(value);
+        } catch (error) {
+          console.error("Support URL validation failed.", error?.name || "UnknownError");
+          return false;
+        }
+      }
+
+      function databaseError(operation, error) {
+        const errorName = error?.name || "";
+
+        console.error("IndexedDB " + operation + " failed.", errorName || "UnknownError");
+
+        if (errorName === "QuotaExceededError") {
+          return new Error(
+            "Browser storage quota was exceeded. Free some browser storage and try again."
+          );
+        }
+
+        if (errorName === "VersionError") {
+          return new Error(
+            "The local extension database could not be opened because its version is incompatible."
+          );
+        }
+
+        if (errorName === "SecurityError" || errorName === "NotAllowedError") {
+          return new Error(
+            "Browser storage is unavailable for this page. Try running the portal from a local web server instead of file://."
+          );
+        }
+
+        if (operation === "read") {
+          return new Error(
+            "The extension data could not be read from browser storage. Please try again."
+          );
+        }
+
+        if (operation === "write") {
+          return new Error(
+            "The extension could not be saved to browser storage. Please try again."
+          );
+        }
+
+        if (operation === "delete") {
+          return new Error(
+            "The extension could not be deleted from browser storage. Please try again."
+          );
+        }
+
+        return new Error(
+          "Browser storage could not be " + operation + ". Please try again."
+        );
+      }
+
+      function openDatabase() {
+        return new Promise((resolve, reject) => {
+          if (!window.indexedDB) {
+            reject(
+              new Error(
+                "IndexedDB is unavailable in this browser, so the extension cannot be stored locally."
+              )
+            );
+            return;
+          }
+
+          let request;
+
+          try {
+            request = window.indexedDB.open(DB_NAME, DB_VERSION);
+          } catch (error) {
+            reject(databaseError("opened", error));
+            return;
+          }
+
+          request.onupgradeneeded = () => {
+            try {
+              const database = request.result;
+
+              if (!database.objectStoreNames.contains(STORE_NAME)) {
+                database.createObjectStore(STORE_NAME, {
+                  keyPath: "id"
+                });
+              }
+            } catch (error) {
+              console.error(
+                "IndexedDB object store creation failed.",
+                error?.name || "UnknownError"
+              );
+
+              try {
+                request.transaction?.abort();
+              } catch (abortError) {
+                console.error(
+                  "IndexedDB upgrade abort failed.",
+                  abortError?.name || "UnknownError"
+                );
+              }
+            }
+          };
+
+          request.onblocked = () => {
+            console.error("IndexedDB open operation was blocked.", "Blocked");
+            reject(
+              new Error(
+                "Browser storage is busy because another page is using the local database. Close other copies of this portal and try again."
+              )
+            );
+          };
+
+          request.onerror = () => {
+            reject(databaseError("opened", request.error));
+          };
+
+          request.onsuccess = () => {
+            const database = request.result;
+
+            database.onversionchange = () => {
+              database.close();
+            };
+
+            resolve(database);
+          };
+        });
+      }
+
+      async function getCurrentExtension() {
+        const database = await openDatabase();
+
+        return new Promise((resolve, reject) => {
+          let transaction;
+
+          try {
+            transaction = database.transaction(STORE_NAME, "readonly");
+            const request = transaction.objectStore(STORE_NAME).get(CURRENT_KEY);
+
+            request.onsuccess = () => {
+              resolve(request.result || null);
+            };
+
+            request.onerror = () => {
+              reject(databaseError("read", request.error));
+            };
+
+            transaction.onabort = () => {
+              reject(databaseError("read", transaction.error));
+            };
+
+            transaction.onerror = () => {
+              reject(databaseError("read", transaction.error));
+            };
+
+            transaction.oncomplete = () => {
+              database.close();
+            };
+          } catch (error) {
+            database.close();
+            reject(databaseError("read", error));
+          }
+        });
+      }
+
+      async function saveCurrentExtension(record) {
+        const database = await openDatabase();
+
+        return new Promise((resolve, reject) => {
+          let transaction;
+          let settled = false;
+
+          try {
+            transaction = database.transaction(STORE_NAME, "readwrite");
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.put(record);
+
+            request.onerror = () => {
+              if (!settled) {
+                settled = true;
+                reject(databaseError("write", request.error));
+              }
+            };
+
+            transaction.onerror = () => {
+              if (!settled) {
+                settled = true;
+                reject(databaseError("write", transaction.error));
+              }
+            };
+
+            transaction.onabort = () => {
+              if (!settled) {
+                settled = true;
+                reject(databaseError("write", transaction.error));
+              }
+            };
+
+            transaction.oncomplete = () => {
+              if (!settled) {
+                settled = true;
+                database.close();
+                resolve();
+              }
+            };
+          } catch (error) {
+            database.close();
+
+            if (!settled) {
+              settled = true;
+              reject(databaseError("write", error));
+            }
+          }
+        });
+      }
+
+      async function deleteCurrentExtension() {
+        const database = await openDatabase();
+
+        return new Promise((resolve, reject) => {
+          let transaction;
+          let settled = false;
+
+          try {
+            transaction = database.transaction(STORE_NAME, "readwrite");
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.delete(CURRENT_KEY);
+
+            request.onerror = () => {
+              if (!settled) {
+                settled = true;
+                reject(databaseError("delete", request.error));
+              }
+            };
+
+            transaction.onerror = () => {
+              if (!settled) {
+                settled = true;
+                reject(databaseError("delete", transaction.error));
+              }
+            };
+
+            transaction.onabort = () => {
+              if (!settled) {
+                settled = true;
+                reject(databaseError("delete", transaction.error));
+              }
+            };
+
+            transaction.oncomplete = () => {
+              if (!settled) {
+                settled = true;
+                database.close();
+                resolve();
+              }
+            };
+          } catch (error) {
+            database.close();
+
+            if (!settled) {
+              settled = true;
+              reject(databaseError("delete", error));
+            }
+          }
+        });
+      }
+
+      async function getStorageEstimate() {
+        if (
+          !navigator.storage ||
+          typeof navigator.storage.estimate !== "function"
+        ) {
+          return null;
+        }
+
+        try {
+          return await navigator.storage.estimate();
+        } catch (error) {
+          console.error(
+            "Storage estimate failed.",
+            error?.name || "UnknownError"
+          );
+          return null;
+        }
+      }
+
+      function updateStoragePanel(estimate) {
+        if (!estimate) {
+          storageUsage.textContent = "Unavailable";
+          storageQuota.textContent = "Unavailable";
+          storageBarFill.style.width = "0%";
+          storageStatusText.textContent =
+            "The Storage Manager API is unavailable or could not be queried. Local storage may still work.";
+          return;
+        }
+
+        const usage = Number(estimate.usage);
+        const quota = Number(estimate.quota);
+
+        storageUsage.textContent = Number.isFinite(usage)
+          ? formatBytes(usage)
+          : "Unavailable";
+        storageQuota.textContent = Number.isFinite(quota)
+          ? formatBytes(quota)
+          : "Unavailable";
+
+        if (Number.isFinite(usage) && Number.isFinite(quota) && quota > 0) {
+          const percent = Math.min(100, Math.max(0, (usage / quota) * 100));
+          storageBarFill.style.width = percent.toFixed(1) + "%";
+          storageStatusText.textContent =
+            "Approximate browser storage usage: " + percent.toFixed(1) + "%.";
+        } else {
+          storageBarFill.style.width = "0%";
+          storageStatusText.textContent =
+            "Storage estimates are incomplete in this browser context.";
+        }
+      }
+
+      async function refreshStoragePanel() {
+        const estimate = await getStorageEstimate();
+        updateStoragePanel(estimate);
+      }
+
+      function validateMetadata() {
+        const extensionName = extensionNameInput.value.trim();
+        const version = versionInput.value.trim();
+        const description = descriptionInput.value.trim();
+        const category = categoryInput.value.trim();
+        const changelog = changelogInput.value.trim();
+        const supportUrl = supportUrlInput.value.trim();
+
+        if (
+          extensionName.length < NAME_MIN ||
+          extensionName.length > NAME_MAX
+        ) {
+          throw new Error("Extension name must be between 2 and 80 characters.");
+        }
+
+        if (!isSafeMetadataText(extensionName)) {
+          throw new Error("Extension name contains invalid characters.");
+        }
+
+        if (
+          version.length < VERSION_MIN ||
+          version.length > VERSION_MAX
+        ) {
+          throw new Error("Version must be between 1 and 30 characters.");
+        }
+
+        if (!isSafeMetadataText(version)) {
+          throw new Error("Version contains invalid characters.");
+        }
+
+        if (!description) {
+          throw new Error("Description is required.");
+        }
+
+        if (description.length > DESCRIPTION_MAX) {
+          throw new Error("Description must be 1000 characters or fewer.");
+        }
+
+        if (!isSafeMetadataText(description)) {
+          throw new Error("Description contains invalid characters.");
+        }
+
+        if (
+          category.length < CATEGORY_MIN ||
+          category.length > CATEGORY_MAX
+        ) {
+          throw new Error("Category must be between 1 and 50 characters.");
+        }
+
+        if (!isSafeMetadataText(category)) {
+          throw new Error("Category contains invalid characters.");
+        }
+
+        if (changelog.length > CHANGELOG_MAX) {
+          throw new Error("Changelog must be 2000 characters or fewer.");
+        }
+
+        if (!isSafeMetadataText(changelog)) {
+          throw new Error("Changelog contains invalid characters.");
+        }
+
+        if (supportUrl.length > SUPPORT_URL_MAX) {
+          throw new Error("Support URL is too long.");
+        }
+
+        if (supportUrl && !isSafeHttpsUrl(supportUrl)) {
+          throw new Error("Support URL must use https:// and be a valid URL.");
+        }
+
+        return {
+          extensionName,
+          version,
+          description,
+          category,
+          changelog,
+          supportUrl
+        };
+      }
+
+      async function readZipSignature(file) {
+        try {
+          const signatureBuffer = await file.slice(0, 4).arrayBuffer();
+          const bytes = new Uint8Array(signatureBuffer);
+
+          if (bytes.length < 4) {
+            return false;
+          }
+
+          return (
+            bytes[0] === 0x50 &&
+            bytes[1] === 0x4b &&
+            (
+              (
+                bytes[2] === 0x03 &&
+                bytes[3] === 0x04
+              ) ||
+              (
+                bytes[2] === 0x05 &&
+                bytes[3] === 0x06
+              ) ||
+              (
+                bytes[2] === 0x07 &&
+                bytes[3] === 0x08
+              )
+            )
+          );
+        } catch (error) {
+          console.error(
+            "Selected file read failed.",
+            error?.name || "UnknownError"
+          );
+          throw new Error(
+            "The selected file could not be read. Please choose the ZIP file again."
+          );
+        }
+      }
+
+      async function validateZipFile(file) {
+        if (!file) {
+          throw new Error("No file selected.");
+        }
+
+        const fileName = String(file.name || "");
+
+        if (!/\.zip$/i.test(fileName)) {
+          throw new Error("The selected file must have a .zip extension.");
+        }
+
+        if (!Number.isFinite(file.size) || file.size <= 0) {
+          throw new Error("Empty ZIP files are not allowed.");
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+          throw new Error("The selected file is larger than 50 MB.");
+        }
+
+        const mimeType = String(file.type || "").toLowerCase();
+
+        if (mimeType && !ALLOWED_ZIP_MIME_TYPES.has(mimeType)) {
+          throw new Error(
+            "The selected file has an invalid file type. A ZIP archive is required."
+          );
+        }
+
+        const hasZipSignature = await readZipSignature(file);
+
+        if (!hasZipSignature) {
+          throw new Error(
+            "The selected file does not appear to be a valid ZIP archive."
+          );
+        }
+
+        return true;
+      }
+
+      function getFormMetadata() {
+        return {
+          extensionName: extensionNameInput.value.trim(),
+          version: versionInput.value.trim(),
+          description: descriptionInput.value.trim(),
+          category: categoryInput.value.trim(),
+          changelog: changelogInput.value.trim(),
+          supportUrl: supportUrlInput.value.trim()
+        };
+      }
+
+      async function updatePreviewStorageStatus(file) {
+        if (!file) {
+          previewStorageStatus.textContent = "No file selected.";
+          return;
+        }
+
+        const estimate = await getStorageEstimate();
+
+        if (selectedFile !== file) {
+          return;
+        }
+
+        if (
+          !estimate ||
+          !Number.isFinite(estimate.usage) ||
+          !Number.isFinite(estimate.quota) ||
+          estimate.quota <= 0
+        ) {
+          previewStorageStatus.textContent =
+            "Storage estimate unavailable. The save will be attempted normally.";
+          return;
+        }
+
+        const estimatedAfterWrite = estimate.usage + file.size;
+
+        if (estimatedAfterWrite > estimate.quota) {
+          previewStorageStatus.textContent =
+            "The ZIP may exceed the browser's estimated storage quota.";
+        } else {
+          previewStorageStatus.textContent =
+            "The ZIP appears likely to fit within the browser's estimated storage quota.";
+        }
+      }
+
+      function renderFilePreview(file) {
+        if (!file) {
+          selectedFilePreview.hidden = true;
+          return;
+        }
+
+        previewFileName.textContent = file.name || "Unnamed file";
+        previewFileSize.textContent = formatBytes(file.size);
+        previewFileType.textContent = file.type || "Type not provided";
+        previewLastModified.textContent = formatDate(file.lastModified);
+        previewExtensionName.textContent =
+          extensionNameInput.value.trim() || "Not entered";
+        previewVersion.textContent =
+          versionInput.value.trim() || "Not entered";
+        previewDescription.textContent =
+          descriptionInput.value.trim() || "Not entered";
+        previewCategory.textContent =
+          categoryInput.value.trim() || "Not entered";
+        previewChangelog.textContent =
+          changelogInput.value.trim() || "Not provided";
+        previewSupportUrl.textContent =
+          supportUrlInput.value.trim() || "Not provided";
+
+        selectedFilePreview.hidden = false;
+
+        updatePreviewStorageStatus(file);
+      }
+
+      function updateMetadataPreview() {
+        if (!selectedFile) return;
+
+        previewExtensionName.textContent =
+          extensionNameInput.value.trim() || "Not entered";
+        previewVersion.textContent =
+          versionInput.value.trim() || "Not entered";
+        previewDescription.textContent =
+          descriptionInput.value.trim() || "Not entered";
+        previewCategory.textContent =
+          categoryInput.value.trim() || "Not entered";
+        previewChangelog.textContent =
+          changelogInput.value.trim() || "Not provided";
+        previewSupportUrl.textContent =
+          supportUrlInput.value.trim() || "Not provided";
+      }
+
+      function clearSelectedFile() {
+        selectedFile = null;
+        zipFile.value = "";
+        selectedFilePreview.hidden = true;
+
+        previewFileName.textContent = "—";
+        previewFileSize.textContent = "—";
+        previewFileType.textContent = "—";
+        previewLastModified.textContent = "—";
+        previewExtensionName.textContent = "—";
+        previewVersion.textContent = "—";
+        previewDescription.textContent = "—";
+        previewCategory.textContent = "—";
+        previewChangelog.textContent = "—";
+        previewSupportUrl.textContent = "—";
+        previewStorageStatus.textContent = "—";
+      }
+
+      function setProgressStage(index) {
+        progressBar.value = Math.min(4, Math.max(0, index));
+
+        const activeItem = stageItems[index];
+        progressStatus.textContent = activeItem
+          ? activeItem.textContent
+          : "Processing";
+
+        stageItems.forEach((item, itemIndex) => {
+          item.classList.toggle("active", itemIndex === index);
+          item.classList.toggle("done", itemIndex < index);
+        });
+      }
+
+      function startProgress() {
+        uploadProgress.hidden = false;
+        setProgressStage(0);
+      }
+
+      function finishProgress() {
+        setProgressStage(4);
+      }
+
+      function hideProgress() {
+        uploadProgress.hidden = true;
+        progressBar.value = 0;
+        progressStatus.textContent = "Validating file";
+
+        stageItems.forEach((item) => {
+          item.classList.remove("active", "done");
+        });
+      }
+
+      function setFormBusy(busy) {
+        isBusy = busy;
+
+        const controls = uploadForm.querySelectorAll(
+          "input, textarea, select, button"
+        );
+
+        controls.forEach((control) => {
+          control.disabled = busy;
+        });
+
+        uploadButton.disabled = busy;
+      }
+
+      function validateStoredBlob(record) {
+        if (!record || !(record.zipBlob instanceof Blob)) {
+          return {
+            valid: false,
+            message: "The stored ZIP Blob is missing or unavailable."
+          };
+        }
+
+        if (record.zipBlob.size <= 0) {
+          return {
+            valid: false,
+            message: "The stored ZIP Blob is empty."
+          };
+        }
+
+        if (
+          Number.isFinite(record.fileSize) &&
+          record.fileSize > 0 &&
+          record.zipBlob.size !== record.fileSize
+        ) {
+          return {
+            valid: false,
+            message: "The stored ZIP Blob appears corrupted or incomplete."
+          };
+        }
+
+        return {
+          valid: true,
+          message: ""
+        };
+      }
+
+      function renderCurrentRecord(record) {
+        currentReadError.hidden = true;
+        currentReadError.textContent = "";
+
+        if (!record) {
+          currentRecord = null;
+          currentExtensionCard.hidden = true;
+          currentEmptyState.hidden = false;
+          currentEmptyTitle.textContent = "No extension has been uploaded yet.";
+          currentEmptyMessage.textContent =
+            "Upload a trusted Chrome Extension ZIP file to publish it on the distribution page.";
+          replaceButton.disabled = true;
+          deleteButton.disabled = true;
+          viewMetadataButton.disabled = true;
+          backupButton.disabled = true;
+          return;
+        }
+
+        const blobCheck = validateStoredBlob(record);
+
+        if (!blobCheck.valid) {
+          currentRecord = record;
+          currentExtensionCard.hidden = false;
+          currentEmptyState.hidden = true;
+          currentStatus.textContent = blobCheck.message;
+
+          currentExtensionName.textContent =
+            record.extensionName || "Unavailable";
+          currentVersion.textContent = record.version || "Unavailable";
+          currentCategory.textContent = record.category || "Unavailable";
+          currentFileName.textContent = record.fileName || "Unavailable";
+          currentFileSize.textContent = Number.isFinite(record.fileSize)
+            ? formatBytes(record.fileSize)
+            : "Unavailable";
+          currentUploadedDate.textContent = formatDate(record.uploadedAt);
+          currentUpdatedDate.textContent = formatDate(record.updatedAt);
+          currentDescription.textContent =
+            record.description || "Unavailable";
+
+          currentChangelog.textContent = record.changelog || "";
+          currentChangelogRow.hidden = !record.changelog;
+
+          currentSupportLink.hidden = true;
+          currentSupportLink.removeAttribute("href");
+          currentSupportText.hidden = false;
+          currentSupportText.textContent = "Unavailable";
+
+          replaceButton.disabled = false;
+          deleteButton.disabled = false;
+          viewMetadataButton.disabled = false;
+          backupButton.disabled = true;
+          return;
+        }
+
+        currentRecord = record;
+        currentExtensionCard.hidden = false;
+        currentEmptyState.hidden = true;
+
+        currentExtensionName.textContent =
+          record.extensionName || "Unnamed extension";
+        currentVersion.textContent = record.version || "Unavailable";
+        currentCategory.textContent =
+          record.category || "Uncategorized";
+        currentFileName.textContent =
+          record.fileName || "extension.zip";
+        currentFileSize.textContent =
+          formatBytes(record.zipBlob.size);
+        currentUploadedDate.textContent =
+          formatDate(record.uploadedAt);
+        currentUpdatedDate.textContent =
+          formatDate(record.updatedAt);
+        currentStatus.textContent = "Available locally";
+        currentDescription.textContent =
+          record.description || "No description provided.";
+
+        if (record.changelog) {
+          currentChangelog.textContent = record.changelog;
+          currentChangelogRow.hidden = false;
+        } else {
+          currentChangelog.textContent = "";
+          currentChangelogRow.hidden = true;
+        }
+
+        currentSupportLink.hidden = true;
+        currentSupportLink.removeAttribute("href");
+        currentSupportText.hidden = false;
+        currentSupportText.textContent = "Not provided";
+
+        if (isSafeHttpsUrl(record.supportUrl || "")) {
+          if (record.supportUrl) {
+            currentSupportLink.textContent = "Open support page";
+            currentSupportLink.href = record.supportUrl;
+            currentSupportLink.target = "_blank";
+            currentSupportLink.rel = "noopener noreferrer";
+            currentSupportLink.hidden = false;
+            currentSupportText.hidden = true;
+          }
+        } else if (record.supportUrl) {
+          currentSupportText.textContent = "Unavailable because the URL is not a valid HTTPS URL.";
+        }
+
+        replaceButton.disabled = false;
+        deleteButton.disabled = false;
+        viewMetadataButton.disabled = false;
+        backupButton.disabled = false;
+      }
+
+      async function refreshCurrentExtension() {
+        try {
+          const record = await getCurrentExtension();
+          renderCurrentRecord(record);
+        } catch (error) {
+          console.error(
+            "Current extension read failed.",
+            error?.name || "UnknownError"
+          );
+
+          currentRecord = null;
+          currentExtensionCard.hidden = true;
+          currentEmptyState.hidden = false;
+          currentEmptyTitle.textContent = "Extension data could not be read.";
+          currentEmptyMessage.textContent =
+            "The browser could not read the local extension record. Please try again.";
+
+          currentReadError.textContent =
+            error?.message ||
+            "The extension data could not be read from browser storage.";
+          currentReadError.hidden = false;
+
+          replaceButton.disabled = true;
+          deleteButton.disabled = true;
+          viewMetadataButton.disabled = true;
+          backupButton.disabled = true;
+        }
+      }
+
+      function getFocusableElements() {
+        if (!modalDialog) return [];
+
+        return Array.from(
+          modalDialog.querySelectorAll(
+            'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          )
+        ).filter((element) => !element.hidden);
+      }
+
+      function openModal(options) {
+        modalPreviousFocus = document.activeElement;
+
+        modalTitle.textContent = options.title || "Confirmation";
+        modalMessage.textContent = options.message || "";
+        modalConfirmButton.textContent = options.confirmLabel || "Confirm";
+        modalConfirmAction = options.onConfirm || null;
+
+        modalConfirmButton.classList.toggle(
+          "danger",
+          options.destructive === true
+        );
+        modalTitle.classList.toggle(
+          "danger-title",
+          options.destructive === true
+        );
+
+        modalCancelButton.hidden = options.showCancel === false;
+        modalConfirmButton.hidden = options.showConfirm === false;
+
+        if (options.showConfirm === false) {
+          modalCancelButton.textContent = "Close";
+        } else {
+          modalCancelButton.textContent = "Cancel";
+        }
+
+        modalBackdrop.hidden = false;
+        document.body.classList.add("modal-open");
+
+        window.setTimeout(() => {
+          const focusables = getFocusableElements();
+          (focusables[0] || modalDialog).focus();
+        }, 0);
+      }
+
+      function closeModal() {
+        modalBackdrop.hidden = true;
+        document.body.classList.remove("modal-open");
+
+        modalConfirmAction = null;
+
+        if (modalPreviousFocus && typeof modalPreviousFocus.focus === "function") {
+          try {
+            modalPreviousFocus.focus();
+          } catch (error) {
+            console.error(
+              "Modal focus restoration failed.",
+              error?.name || "UnknownError"
+            );
+          }
+        }
+
+        modalPreviousFocus = null;
+      }
+
+      async function handleModalConfirm() {
+        const action = modalConfirmAction;
+        closeModal();
+
+        if (typeof action !== "function") return;
+
+        try {
+          await action();
+        } catch (error) {
+          console.error(
+            "Modal action failed.",
+            error?.name || "UnknownError"
+          );
+
+          showToast(
+            error?.message || "The requested action could not be completed.",
+            "error"
+          );
+        }
+      }
+
+      function buildMetadataMessage(record) {
+        const lines = [
+          "Extension name: " + (record.extensionName || "Unavailable"),
+          "Version: " + (record.version || "Unavailable"),
+          "Category: " + (record.category || "Unavailable"),
+          "ZIP file name: " + (record.fileName || "Unavailable"),
+          "File size: " + (
+            record.zipBlob instanceof Blob
+              ? formatBytes(record.zipBlob.size)
+              : "Unavailable"
+          ),
+          "Uploaded date: " + formatDate(record.uploadedAt),
+          "Last updated: " + formatDate(record.updatedAt),
+          "Status: " + (
+            validateStoredBlob(record).valid
+              ? "Available locally"
+              : "ZIP Blob unavailable or corrupted"
+          ),
+          "Description: " + (record.description || "Not provided"),
+          "Changelog: " + (record.changelog || "Not provided"),
+          "Support URL: " + (record.supportUrl || "Not provided")
+        ];
+
+        return lines.join("\n");
+      }
+
+      async function validateUploadPayload(payload) {
+        if (!payload || !(payload.file instanceof File)) {
+          throw new Error("No file selected.");
+        }
+
+        await validateZipFile(payload.file);
+
+        const metadata = validateMetadata();
+
+        return {
+          file: payload.file,
+          metadata
+        };
+      }
+
+      async function performUpload(payload, confirmationTimestamp) {
+        if (isBusy) return;
+
+        setError(uploadError, "");
+        setFormBusy(true);
+        startProgress();
+
+        try {
+          setProgressStage(0);
+
+          const validated = await validateUploadPayload(payload);
+
+          setProgressStage(1);
+
+          const latestRecord = await getCurrentExtension();
+
+          if (
+            latestRecord &&
+            confirmationTimestamp &&
+            latestRecord.updatedAt !== confirmationTimestamp
+          ) {
+            hideProgress();
+            setFormBusy(false);
+
+            openModal({
+              title: "The current extension changed",
+              message:
+                "Another current extension record was changed after the previous confirmation. Confirm again before replacing the latest record.",
+              confirmLabel: "Confirm replacement",
+              destructive: true,
+              onConfirm: async () => {
+                await performUpload(
+                  payload,
+                  latestRecord.updatedAt
+                );
+              }
+            });
+
+            return;
+          }
+
+          const now = Date.now();
+
+          const record = {
+            id: CURRENT_KEY,
+            extensionName: validated.metadata.extensionName,
+            version: validated.metadata.version,
+            description: validated.metadata.description,
+            category: validated.metadata.category,
+            changelog: validated.metadata.changelog,
+            supportUrl: validated.metadata.supportUrl,
+            fileName: validated.file.name,
+            fileSize: validated.file.size,
+            fileType: validated.file.type || "application/zip",
+            lastModified: validated.file.lastModified,
+            uploadedAt: latestRecord?.uploadedAt || now,
+            updatedAt: now,
+
+            // Store the ZIP directly as a Blob. Never convert it to base64.
+            zipBlob: validated.file
+          };
+
+          setProgressStage(2);
+
+          await saveCurrentExtension(record);
+
+          setProgressStage(3);
+
+          const savedRecord = await getCurrentExtension();
+
+          if (!savedRecord) {
+            throw new Error(
+              "The extension was saved, but the current record could not be read back."
+            );
+          }
+
+          const storedBlobCheck = validateStoredBlob(savedRecord);
+
+          if (!storedBlobCheck.valid) {
+            throw new Error(
+              "The saved ZIP data could not be verified. It may be unavailable or corrupted."
+            );
+          }
+
+          setProgressStage(4);
+
+          currentRecord = savedRecord;
+          renderCurrentRecord(savedRecord);
+
+          clearSelectedFile();
+          setError(uploadError, "");
+
+          showToast("Extension saved successfully to local browser storage.", "success");
+          await refreshStoragePanel();
+        } catch (error) {
+          console.error(
+            "Extension upload/save workflow failed.",
+            error?.name || "UnknownError"
+          );
+
+          setError(
+            uploadError,
+            error?.message ||
+              "The extension could not be saved. Please try again."
+          );
+
+          showToast(
+            error?.message ||
+              "The extension could not be saved.",
+            "error"
+          );
+        } finally {
+          finishProgress();
+
+          window.setTimeout(() => {
+            if (!isBusy) {
+              hideProgress();
+            }
+          }, 350);
+
+          setFormBusy(false);
+        }
+      }
+
+      async function beginUpload() {
+        if (isBusy) return;
+
+        setError(uploadError, "");
+
+        try {
+          const payload = {
+            file: selectedFile || zipFile.files[0] || null
+          };
+
+          if (!payload.file) {
+            throw new Error("No file selected.");
+          }
+
+          const metadata = validateMetadata();
+
+          await validateZipFile(payload.file);
+
+          const existingRecord = await getCurrentExtension();
+
+          if (existingRecord) {
+            pendingUpload = {
+              file: payload.file,
+              metadata,
+              confirmationTimestamp: existingRecord.updatedAt
+            };
+
+            openModal({
+              title: "Replace the current extension?",
+              message:
+                "An extension is already stored under the current key.\n\n" +
+                "Extension: " +
+                (existingRecord.extensionName || "Unnamed extension") +
+                "\nVersion: " +
+                (existingRecord.version || "Unavailable") +
+                "\n\nUploading this package will replace the existing extension. Confirm before continuing.",
+              confirmLabel: "Replace extension",
+              destructive: true,
+              onConfirm: async () => {
+                const nextPayload = pendingUpload;
+                pendingUpload = null;
+
+                if (!nextPayload) {
+                  throw new Error("The replacement upload request is no longer available.");
+                }
+
+                await performUpload(
+                  nextPayload,
+                  nextPayload.confirmationTimestamp
+                );
+              }
+            });
+
+            return;
+          }
+
+          await performUpload(payload, null);
+        } catch (error) {
+          console.error(
+            "Upload validation workflow failed.",
+            error?.name || "UnknownError"
+          );
+
+          setError(
+            uploadError,
+            error?.message ||
+              "The upload could not be started. Please check the form and try again."
+          );
+
+          showToast(
+            error?.message ||
+              "Please correct the upload form.",
+            "error"
+          );
+        }
+      }
+
+      async function handleDelete() {
+        if (!currentRecord) {
+          showToast("No current extension is available to delete.", "error");
+          return;
+        }
+
+        openModal({
+          title: "Delete current extension?",
+          message:
+            "This will permanently remove the current extension record and its ZIP Blob from IndexedDB.\n\n" +
+            "Deletion cannot be undone.",
+          confirmLabel: "Delete extension",
+          destructive: true,
+          onConfirm: async () => {
+            try {
+              await deleteCurrentExtension();
+
+              currentRecord = null;
+              renderCurrentRecord(null);
+
+              await refreshStoragePanel();
+
+              showToast(
+                "The extension was deleted from local browser storage.",
+                "success"
+              );
+            } catch (error) {
+              console.error(
+                "Extension delete workflow failed.",
+                error?.name || "UnknownError"
+              );
+
+              showToast(
+                error?.message ||
+                  "The extension could not be deleted.",
+                "error"
+              );
+            }
+          }
+        });
+      }
+
+      function startReplaceFlow() {
+        if (isBusy) return;
+
+        zipFile.value = "";
+        selectedFile = null;
+        selectedFilePreview.hidden = true;
+
+        zipFile.click();
+
+        window.setTimeout(() => {
+          zipFile.focus();
+        }, 0);
+      }
+
+      async function downloadCurrentExtension(asBackup) {
+        try {
+          const record = await getCurrentExtension();
+
+          if (!record) {
+            throw new Error("No current extension is available.");
+          }
+
+          const blobCheck = validateStoredBlob(record);
+
+          if (!blobCheck.valid) {
+            throw new Error(blobCheck.message);
+          }
+
+          let baseName = record.fileName || record.extensionName || "extension";
+
+          if (asBackup) {
+            baseName = baseName.replace(/\.zip$/i, "") + "-backup";
+          }
+
+          const filename = sanitizeDownloadFilename(baseName);
+
+          let objectUrl = null;
+          let temporaryLink = null;
+
+          try {
+            if (typeof URL?.createObjectURL !== "function") {
+              throw new Error(
+                "This browser does not support temporary Blob download URLs."
+              );
+            }
+
+            objectUrl = URL.createObjectURL(record.zipBlob);
+
+            temporaryLink = document.createElement("a");
+            temporaryLink.href = objectUrl;
+            temporaryLink.download = filename;
+            temporaryLink.textContent = "Download";
+            temporaryLink.style.display = "none";
+
+            document.body.appendChild(temporaryLink);
+            temporaryLink.click();
+            temporaryLink.remove();
+            temporaryLink = null;
+          } catch (error) {
+            if (temporaryLink?.isConnected) {
+              temporaryLink.remove();
+            }
+
+            console.error(
+              "ZIP download operation failed.",
+              error?.name || "UnknownError"
+            );
+
+            throw new Error(
+              "The ZIP file could not be downloaded. Please try again."
+            );
+          } finally {
+            if (objectUrl) {
+              URL.revokeObjectURL(objectUrl);
+            }
+          }
+
+          showToast(
+            asBackup
+              ? "Backup download started."
+              : "Extension download started.",
+            "success"
+          );
+        } catch (error) {
+          console.error(
+            "Current extension download workflow failed.",
+            error?.name || "UnknownError"
+          );
+
+          showToast(
+            error?.message ||
+              "The extension could not be downloaded.",
+            "error"
+          );
+        }
+      }
+
+      function showMetadataModal() {
+        if (!currentRecord) {
+          showToast("No current extension metadata is available.", "error");
+          return;
+        }
+
+        openModal({
+          title: "Current extension metadata",
+          message: buildMetadataMessage(currentRecord),
+          showCancel: true,
+          showConfirm: false
+        });
+      }
+
+      function resetUploadForm() {
+        if (isBusy) return;
+
+        uploadForm.reset();
+        clearSelectedFile();
+        setError(uploadError, "");
+      }
+
+      function initializeAuthState() {
+        let storedSession = null;
+
+        try {
+          storedSession = window.sessionStorage.getItem(SESSION_KEY);
+        } catch (error) {
+          console.error(
+            "Session storage read failed.",
+            error?.name || "UnknownError"
+          );
+        }
+
+        sessionLoginState = storedSession === "true";
+        renderAuthState();
+      }
+
+      function renderAuthState() {
+        const loggedIn = sessionLoginState;
+
+        loginSection.hidden = loggedIn;
+        dashboardSection.hidden = !loggedIn;
+        siteHeader.hidden = !loggedIn;
+        siteFooter.hidden = !loggedIn;
+
+        if (loggedIn) {
+          adminPassword.value = "";
+          refreshCurrentExtension();
+          refreshStoragePanel();
+          window.setTimeout(() => {
+            extensionNameInput.focus();
+          }, 0);
+        }
+      }
+
+      function signIn() {
+        setError(loginError, "");
+
+        if (adminPassword.value !== DEMO_ADMIN_PASSWORD) {
+          setError(
+            loginError,
+            "Incorrect demo password. Please try again."
+          );
+          adminPassword.select();
+          return;
+        }
+
+        sessionLoginState = true;
+
+        try {
+          window.sessionStorage.setItem(SESSION_KEY, "true");
+        } catch (error) {
+          console.error(
+            "Session storage write failed.",
+            error?.name || "UnknownError"
+          );
+        }
+
+        renderAuthState();
+        showToast("Demo admin session started.", "success");
+      }
+
+      function logOut() {
+        sessionLoginState = false;
+
+        try {
+          window.sessionStorage.removeItem(SESSION_KEY);
+        } catch (error) {
+          console.error(
+            "Session storage logout failed.",
+            error?.name || "UnknownError"
+          );
+        }
+
+        closeModal();
+        hideProgress();
+        setFormBusy(false);
+        clearSelectedFile();
+        renderAuthState();
+
+        loginError.textContent = "";
+        loginError.hidden = true;
+
+        window.setTimeout(() => {
+          adminPassword.focus();
+        }, 0);
+      }
+
+      function handleZipFileChange() {
+        if (isBusy) return;
+
+        setError(uploadError, "");
+
+        const file = zipFile.files?.[0] || null;
+        selectedFile = file;
+
+        if (!file) {
+          clearSelectedFile();
+          return;
+        }
+
+        selectedFilePreview.hidden = false;
+        renderFilePreview(file);
+
+        validateZipFile(file)
+          .then(() => {
+            updatePreviewStorageStatus(file);
+          })
+          .catch((error) => {
+            console.error(
+              "Selected ZIP validation failed.",
+              error?.name || "UnknownError"
+            );
+
+            clearSelectedFile();
+            setError(
+              uploadError,
+              error?.message || "The selected file is not a valid ZIP file."
+            );
+            showToast(
+              error?.message || "The selected file is not a valid ZIP file.",
+              "error"
+            );
+          });
+      }
+
+      function handleModalKeydown(event) {
+        if (modalBackdrop.hidden) return;
+
+        if (event.key === "Escape") {
+          event.preventDefault();
+          closeModal();
+          return;
+        }
+
+        if (event.key !== "Tab") return;
+
+        const focusables = getFocusableElements();
+
+        if (!focusables.length) {
+          event.preventDefault();
+          modalDialog.focus();
+          return;
+        }
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+
+      loginForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        signIn();
+      });
+
+      logoutButton.addEventListener("click", logOut);
+
+      uploadForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        beginUpload();
+      });
+
+      uploadForm.addEventListener("reset", () => {
+        window.setTimeout(() => {
+          if (!isBusy) {
+            clearSelectedFile();
+            setError(uploadError, "");
+          }
+        }, 0);
+      });
+
+      zipFile.addEventListener("change", handleZipFileChange);
+
+      [
+        extensionNameInput,
+        versionInput,
+        descriptionInput,
+        categoryInput,
+        changelogInput,
+        supportUrlInput
+      ].forEach((input) => {
+        input.addEventListener("input", updateMetadataPreview);
+      });
+
+      removeSelectedFileButton.addEventListener("click", () => {
+        if (isBusy) return;
+        clearSelectedFile();
+        zipFile.focus();
+        showToast("Selected file removed from the form.", "success");
+      });
+
+      replaceButton.addEventListener("click", startReplaceFlow);
+      deleteButton.addEventListener("click", handleDelete);
+
+      viewMetadataButton.addEventListener("click", showMetadataModal);
+
+      backupButton.addEventListener("click", () => {
+        downloadCurrentExtension(true);
+      });
+
+      resetButton.addEventListener("click", () => {
+        if (!isBusy) {
+          clearSelectedFile();
+        }
+      });
+
+      modalCancelButton.addEventListener("click", closeModal);
+      modalConfirmButton.addEventListener("click", handleModalConfirm);
+      modalBackdrop.addEventListener("keydown", handleModalKeydown);
+
+      modalBackdrop.addEventListener("click", (event) => {
+        if (event.target === modalBackdrop) {
+          closeModal();
+        }
+      });
+
+      initializeAuthState();
+    });
+  </script>
+</body>
+</html>
