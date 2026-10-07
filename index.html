@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'self';"
+  />
+  <title>Extension Distribution Portal</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-muted: #f8fafc;
+      --text: #172033;
+      --text-muted: #5c687a;
+      --border: #dce3ec;
+      --primary: #2457d6;
+      --primary-hover: #1c48b6;
+      --success: #147a4b;
+      --success-bg: #eaf8f1;
+      --warning: #8a5a00;
+      --warning-bg: #fff7df;
+      --danger: #b42318;
+      --danger-bg: #fff0ee;
+      --shadow: 0 14px 40px rgba(31, 48, 80, 0.09);
+      --radius: 18px;
+      --focus: 0 0 0 3px rgba(36, 87, 214, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    a {
+      color: var(--primary);
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button,
+    a.button-link {
+      min-height: 44px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:disabled,
+    input:disabled,
+    textarea:disabled,
+    select:disabled {
+      cursor: not-allowed;
+      opacity: 0.58;
+    }
+
+    :focus-visible {
+      outline: none;
+      box-shadow: var(--focus);
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+
+    .header-inner,
+    .container,
+    .site-footer-inner {
+      width: min(1120px, calc(100% - 32px));
+      margin-inline: auto;
+    }
+
+    .header-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-size: 1.08rem;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .header-nav a {
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .container {
+      padding-block: 38px 60px;
+    }
+
+    .hero {
+      padding: 46px 0 22px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .hero-copy,
+    .hero-note {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-copy {
+      padding: 34px;
+    }
+
+    .hero-note {
+      padding: 26px;
+      background: linear-gradient(145deg, #ffffff, #f3f6ff);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #cdd8ef;
+      background: #eef3ff;
+      color: #234aaf;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      margin-bottom: 12px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.15;
+      margin-top: 0;
+      letter-spacing: -0.025em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      margin-bottom: 14px;
+    }
+
+    h2 {
+      font-size: clamp(1.45rem, 2vw, 1.85rem);
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
+
+    .hero-copy p,
+    .hero-note p {
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .section {
+      margin-top: 24px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      padding: 26px;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+
+    .section-heading p {
+      margin: 0;
+      color: var(--text-muted);
+      max-width: 740px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      border: 1px solid var(--border);
+      background: var(--surface-muted);
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .status-badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .status-badge.available {
+      color: var(--success);
+      background: var(--success-bg);
+      border-color: #bde6d1;
+    }
+
+    .status-badge.unavailable {
+      color: var(--danger);
+      background: var(--danger-bg);
+      border-color: #f2c1bb;
+    }
+
+    .empty-state {
+      padding: 28px;
+      border: 1px dashed #c4cedb;
+      border-radius: 14px;
+      background: var(--surface-muted);
+    }
+
+    .empty-state p {
+      margin: 0;
+      color: var(--text-muted);
+    }
+
+    .extension-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 20px;
+      margin-top: 20px;
+    }
+
+    .detail {
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      min-width: 0;
+    }
+
+    .detail dt {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 800;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .detail dd {
+      margin: 0;
+      word-break: break-word;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .button,
+    .button-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 11px;
+      border: 1px solid transparent;
+      text-decoration: none;
+      font-weight: 800;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .button:hover:not(:disabled),
+    .button-link:hover {
+      transform: translateY(-1px);
+    }
+
+    .button.primary,
+    .button-link.primary {
+      color: #ffffff;
+      background: var(--primary);
+    }
+
+    .button.primary:hover:not(:disabled),
+    .button-link.primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .button.secondary,
+    .button-link.secondary {
+      color: var(--text);
+      background: #ffffff;
+      border-color: var(--border);
+    }
+
+    .button.danger {
+      color: #ffffff;
+      background: var(--danger);
+    }
+
+    .button.ghost {
+      color: var(--primary);
+      background: transparent;
+      border-color: transparent;
+      padding-inline: 8px;
+    }
+
+    .notice {
+      margin-top: 16px;
+      border: 1px solid #ead8a5;
+      background: var(--warning-bg);
+      color: #644600;
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .security-warning {
+      border-color: #f0b8b0;
+      background: var(--danger-bg);
+      color: #7b1a12;
+    }
+
+    .steps {
+      margin: 0;
+      padding-left: 22px;
+    }
+
+    .steps li + li {
+      margin-top: 8px;
+    }
+
+    .toast-region {
+      position: fixed;
+      inset: auto 18px 18px auto;
+      z-index: 100;
+      width: min(360px, calc(100% - 36px));
+      display: grid;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      padding: 13px 15px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      box-shadow: var(--shadow);
+      color: var(--text);
+      pointer-events: auto;
+    }
+
+    .toast.success {
+      border-color: #bde6d1;
+      background: var(--success-bg);
+    }
+
+    .toast.error {
+      border-color: #f2c1bb;
+      background: var(--danger-bg);
+    }
+
+    .site-footer {
+      border-top: 1px solid var(--border);
+      background: #eef2f7;
+    }
+
+    .site-footer-inner {
+      padding-block: 22px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .site-footer p {
+      margin: 4px 0;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 760px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy,
+      .hero-note,
+      .card {
+        padding: 22px;
+      }
+
+      .extension-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .wide {
+        grid-column: auto;
+      }
+
+      .header-inner {
+        align-items: flex-start;
+        padding-block: 14px;
+      }
+
+      .header-nav {
+        justify-content: flex-start;
+      }
+
+      .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="Extension Distribution Portal home">
+        Extension Distribution Portal
+      </a>
+      <nav class="header-nav" aria-label="Main navigation">
+        <a href="admin.html">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <span class="eyebrow">Local Chrome Extension Distribution</span>
+        <h1 id="page-title">Download the current trusted extension package.</h1>
+        <p>
+          This browser-only demo stores one current Chrome Extension ZIP package locally
+          in IndexedDB and provides a safe manual installation workflow.
+        </p>
+      </div>
+
+      <aside class="hero-note" aria-labelledby="status-heading">
+        <h2 id="status-heading">Current status</h2>
+        <div id="publicStatusBadge" class="status-badge unavailable" aria-live="polite">
+          No extension available
+        </div>
+        <p style="margin-top: 14px;">
+          Storage is local to this browser and this origin. It is not a server-based
+          distribution portal.
+        </p>
+      </aside>
+    </section>
+
+    <section class="section" aria-labelledby="extension-heading">
+      <div class="section-heading">
+        <div>
+          <h2 id="extension-heading">Current extension</h2>
+          <p>Only the current record stored under the fixed IndexedDB key is shown here.</p>
+        </div>
+      </div>
+
+      <div id="extensionCard" class="card" hidden>
+        <h3 id="extensionName">Extension</h3>
+        <dl class="extension-grid">
+          <div class="detail">
+            <dt>Version</dt>
+            <dd id="extensionVersion">—</dd>
+          </div>
+          <div class="detail">
+            <dt>Category</dt>
+            <dd id="extensionCategory">—</dd>
+          </div>
+          <div class="detail">
+            <dt>ZIP file name</dt>
+            <dd id="extensionFileName">—</dd>
+          </div>
+          <div class="detail">
+            <dt>File size</dt>
+            <dd id="extensionFileSize">—</dd>
+          </div>
+          <div class="detail">
+            <dt>Uploaded date</dt>
+            <dd id="extensionUploadedDate">—</dd>
+          </div>
+          <div class="detail">
+            <dt>Last updated</dt>
+            <dd id="extensionUpdatedDate">—</dd>
+          </div>
+          <div class="detail">
+            <dt>Status</dt>
+            <dd id="extensionStatus">—</dd>
+          </div>
+          <div class="detail">
+            <dt>Support</dt>
+            <dd id="extensionSupport">—</dd>
+          </div>
+          <div class="detail wide">
+            <dt>Description</dt>
+            <dd id="extensionDescription">—</dd>
+          </div>
+          <div id="changelogDetail" class="detail wide" hidden>
+            <dt>Changelog</dt>
+            <dd id="extensionChangelog">—</dd>
+          </div>
+        </dl>
+
+        <div class="card-actions">
+          <button id="downloadButton" class="button primary" type="button">
+            Download Extension ZIP
+          </button>
+        </div>
+      </div>
+
+      <div id="emptyExtension" class="empty-state">
+        <h3 id="emptyExtensionTitle">No extension is currently available.</h3>
+        <p id="emptyExtensionMessage">
+          Please check back later or contact the administrator.
+        </p>
+      </div>
+
+      <div id="publicError" class="notice security-warning" role="alert" hidden></div>
+    </section>
+
+    <section class="section" aria-labelledby="installation-heading">
+      <div class="card">
+        <h2 id="installation-heading">Chrome installation instructions</h2>
+        <p>
+          A website cannot directly install or enable a Chrome Extension because of
+          browser security restrictions. Install the downloaded package manually:
+        </p>
+        <ol class="steps">
+          <li>Download the extension ZIP file.</li>
+          <li>Extract the ZIP file into a folder.</li>
+          <li>Open Chrome.</li>
+          <li>Navigate to <strong>chrome://extensions</strong>.</li>
+          <li>Enable <strong>Developer mode</strong>.</li>
+          <li>Click <strong>Load unpacked</strong>.</li>
+          <li>Select the extracted extension folder.</li>
+          <li>Confirm that the extension appears in Chrome.</li>
+          <li>Pin or enable the extension if required.</li>
+        </ol>
+
+        <div class="notice">
+          <strong>Important:</strong> The extracted folder must contain
+          <strong>manifest.json</strong> at its root and the extension must use a valid
+          Chrome Extension Manifest. Chrome may block or reject extensions with invalid
+          manifests, missing permissions, or unsupported APIs. Never bypass Chrome
+          security warnings.
+        </div>
+
+        <div class="notice security-warning">
+          <strong>Security warning:</strong> Only install Chrome Extensions from a
+          trusted source. Review the requested permissions before installing.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="local-storage-heading">
+      <div class="card">
+        <h2 id="local-storage-heading">Local-only storage notice</h2>
+        <p>
+          The ZIP is stored as a Blob in this browser’s IndexedDB. It is not uploaded
+          to a server, and other devices will not automatically see it. Clearing browser
+          site data may delete the extension.
+        </p>
+        <p>
+          A production distribution portal requires a backend service and persistent
+          file storage.
+        </p>
+        <p>
+          Browsers may restrict IndexedDB or file behavior when these HTML files are
+          opened directly with <strong>file://</strong>. For local development, run:
+        </p>
+        <p><code>python -m http.server 8000</code></p>
+        <p>Then open <code>http://localhost:8000/index.html</code> and
+          <code>http://localhost:8000/admin.html</code>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <p><strong>Local demo disclaimer:</strong> This portal is frontend-only and stores extension data locally in the current browser.</p>
+      <p>Downloading a ZIP does not automatically install or enable the Chrome Extension.</p>
+    </div>
+  </footer>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    "use strict";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const DB_NAME = "LocalExtensionDemoDB";
+      const DB_VERSION = 1;
+      const STORE_NAME = "extensions";
+      const CURRENT_KEY = "current";
+
+      const statusBadge = document.getElementById("publicStatusBadge");
+      const extensionCard = document.getElementById("extensionCard");
+      const emptyExtension = document.getElementById("emptyExtension");
+      const emptyExtensionTitle = document.getElementById("emptyExtensionTitle");
+      const emptyExtensionMessage = document.getElementById("emptyExtensionMessage");
+      const publicError = document.getElementById("publicError");
+      const downloadButton = document.getElementById("downloadButton");
+      const toastRegion = document.getElementById("toastRegion");
+
+      let toastTimer = null;
+
+      function showToast(message, type) {
+        if (!toastRegion) return;
+
+        toastRegion.textContent = "";
+
+        const toast = document.createElement("div");
+        toast.className = "toast " + (type || "");
+        toast.setAttribute("role", type === "error" ? "alert" : "status");
+        toast.textContent = message;
+
+        toastRegion.appendChild(toast);
+
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => {
+          toast.remove();
+        }, 4500);
+      }
+
+      function showPublicError(message) {
+        if (!publicError) return;
+        publicError.textContent = message;
+        publicError.hidden = false;
+      }
+
+      function clearPublicError() {
+        if (!publicError) return;
+        publicError.textContent = "";
+        publicError.hidden = true;
+      }
+
+      function formatBytes(bytes) {
+        if (!Number.isFinite(bytes) || bytes < 0) return "Unavailable";
+        if (bytes === 0) return "0 Bytes";
+
+        const units = ["Bytes", "KB", "MB", "GB", "TB"];
+        const exponent = Math.min(
+          Math.floor(Math.log(bytes) / Math.log(1024)),
+          units.length - 1
+        );
+        const value = bytes / Math.pow(1024, exponent);
+        const decimals = exponent === 0 ? 0 : value >= 10 ? 1 : 2;
+
+        return value.toFixed(decimals) + " " + units[exponent];
+      }
+
+      function formatDate(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "Unavailable";
+
+        return new Intl.DateTimeFormat(undefined, {
+          dateStyle: "medium",
+          timeStyle: "short"
+        }).format(date);
+      }
+
+      function sanitizeDownloadFilename(input) {
+        let base = String(input || "extension")
+          .replace(/\.zip$/i, "")
+          .replace(/[\/\\?%*:|"<>[\]\u0000-\u001F\u007F]/g, "-")
+          .replace(/\s+/g, "-")
+          .replace(/\.+/g, ".")
+          .replace(/^\.+|\.+$/g, "")
+          .trim();
+
+        if (!base) base = "extension";
+        base = base.slice(0, 80);
+
+        return base + ".zip";
+      }
+
+      function isSafeHttpsUrl(value) {
+        if (!value) return false;
+
+        try {
+          const parsed = new URL(value);
+          return parsed.protocol === "https:";
+        } catch (error) {
+          console.error("Stored support URL validation failed.", error?.name || "UnknownError");
+          return false;
+        }
+      }
+
+      function databaseError(operation, error) {
+        const errorName = error?.name || "";
+
+        console.error("IndexedDB " + operation + " failed.", errorName || "UnknownError");
+
+        if (errorName === "QuotaExceededError") {
+          return new Error(
+            "Browser storage quota was exceeded. Free some browser storage and try again."
+          );
+        }
+
+        if (errorName === "VersionError") {
+          return new Error(
+            "The local extension database could not be opened because its version is incompatible."
+          );
+        }
+
+        if (errorName === "SecurityError" || errorName === "NotAllowedError") {
+          return new Error(
+            "Browser storage is unavailable for this page. Try running it from a local web server instead of file://."
+          );
+        }
+
+        return new Error(
+          "The extension data could not be " + operation + ". Please try again."
+        );
+      }
+
+      function openDatabase() {
+        return new Promise((resolve, reject) => {
+          if (!("indexedDB" in window)) {
+            reject(
+              new Error(
+                "IndexedDB is unavailable in this browser, so the extension cannot be stored locally."
+              )
+            );
+            return;
+          }
+
+          let request;
+
+          try {
+            request = window.indexedDB.open(DB_NAME, DB_VERSION);
+          } catch (error) {
+            reject(databaseError("opened", error));
+            return;
+          }
+
+          request.onupgradeneeded = () => {
+            try {
+              const database = request.result;
+
+              if (!database.objectStoreNames.contains(STORE_NAME)) {
+                database.createObjectStore(STORE_NAME, {
+                  keyPath: "id"
+                });
+              }
+            } catch (error) {
+              console.error("IndexedDB object store creation failed.", error?.name || "UnknownError");
+              try {
+                request.transaction?.abort();
+              } catch (abortError) {
+                console.error("IndexedDB upgrade abort failed.", abortError?.name || "UnknownError");
+              }
+            }
+          };
+
+          request.onblocked = () => {
+            console.error("IndexedDB open operation was blocked.", "Blocked");
+            reject(
+              new Error(
+                "Browser storage is busy because another page is using the local database. Close other copies of this portal and try again."
+              )
+            );
+          };
+
+          request.onerror = () => {
+            reject(databaseError("opened", request.error));
+          };
+
+          request.onsuccess = () => {
+            const database = request.result;
+
+            database.onversionchange = () => {
+              database.close();
+            };
+
+            resolve(database);
+          };
+        });
+      }
+
+      async function getCurrentExtension() {
+        const database = await openDatabase();
+
+        return new Promise((resolve, reject) => {
+          let transaction;
+
+          try {
+            transaction = database.transaction(STORE_NAME, "readonly");
+            const request = transaction.objectStore(STORE_NAME).get(CURRENT_KEY);
+
+            request.onsuccess = () => {
+              resolve(request.result || null);
+            };
+
+            request.onerror = () => {
+              reject(databaseError("read", request.error));
+            };
+
+            transaction.onabort = () => {
+              reject(databaseError("read", transaction.error));
+            };
+
+            transaction.onerror = () => {
+              reject(databaseError("read", transaction.error));
+            };
+
+            transaction.oncomplete = () => {
+              database.close();
+            };
+          } catch (error) {
+            database.close();
+            reject(databaseError("read", error));
+          }
+        });
+      }
+
+      function validateStoredBlob(record) {
+        if (!record || !(record.zipBlob instanceof Blob) || record.zipBlob.size <= 0) {
+          return {
+            valid: false,
+            message: "The stored ZIP data is missing or unavailable."
+          };
+        }
+
+        if (
+          Number.isFinite(record.fileSize) &&
+          record.fileSize > 0 &&
+          record.zipBlob.size !== record.fileSize
+        ) {
+          return {
+            valid: false,
+            message: "The stored ZIP data appears corrupted or incomplete."
+          };
+        }
+
+        return {
+          valid: true,
+          message: ""
+        };
+      }
+
+      function setExtensionStatus(available) {
+        if (!statusBadge) return;
+
+        statusBadge.classList.toggle("available", available);
+        statusBadge.classList.toggle("unavailable", !available);
+        statusBadge.textContent = available
+          ? "Extension available locally"
+          : "No extension available";
+      }
+
+      function setSupportLink(anchor, value) {
+        if (!anchor) return;
+
+        anchor.textContent = "";
+        anchor.removeAttribute("href");
+        anchor.removeAttribute("target");
+        anchor.removeAttribute("rel");
+
+        if (!isSafeHttpsUrl(value)) {
+          anchor.textContent = "Not provided";
+          return;
+        }
+
+        anchor.textContent = "Open support page";
+        anchor.href = value;
+        anchor.target = "_blank";
+        anchor.rel = "noopener noreferrer";
+      }
+
+      function renderExtension(record) {
+        if (!extensionCard || !emptyExtension) return;
+
+        const blobCheck = validateStoredBlob(record);
+
+        if (!blobCheck.valid) {
+          extensionCard.hidden = true;
+          emptyExtension.hidden = false;
+          emptyExtensionTitle.textContent = "Extension data is unavailable.";
+          emptyExtensionMessage.textContent = blobCheck.message;
+          setExtensionStatus(false);
+          downloadButton.disabled = true;
+          return;
+        }
+
+        document.getElementById("extensionName").textContent =
+          record.extensionName || "Unnamed extension";
+        document.getElementById("extensionVersion").textContent =
+          record.version || "Unavailable";
+        document.getElementById("extensionCategory").textContent =
+          record.category || "Uncategorized";
+        document.getElementById("extensionFileName").textContent =
+          record.fileName || "extension.zip";
+        document.getElementById("extensionFileSize").textContent =
+          formatBytes(record.zipBlob.size);
+        document.getElementById("extensionUploadedDate").textContent =
+          formatDate(record.uploadedAt);
+        document.getElementById("extensionUpdatedDate").textContent =
+          formatDate(record.updatedAt);
+        document.getElementById("extensionStatus").textContent =
+          "Available locally";
+        document.getElementById("extensionDescription").textContent =
+          record.description || "No description provided.";
+
+        const changelogDetail = document.getElementById("changelogDetail");
+        const changelog = document.getElementById("extensionChangelog");
+
+        if (record.changelog) {
+          changelog.textContent = record.changelog;
+          changelogDetail.hidden = false;
+        } else {
+          changelog.textContent = "";
+          changelogDetail.hidden = true;
+        }
+
+        setSupportLink(
+          document.getElementById("extensionSupport"),
+          record.supportUrl || ""
+        );
+
+        extensionCard.hidden = false;
+        emptyExtension.hidden = true;
+        setExtensionStatus(true);
+        downloadButton.disabled = false;
+      }
+
+      function showPublicEmpty(message) {
+        if (!extensionCard || !emptyExtension) return;
+
+        extensionCard.hidden = true;
+        emptyExtension.hidden = false;
+        emptyExtensionTitle.textContent = "No extension is currently available.";
+        emptyExtensionMessage.textContent =
+          message || "Please check back later or contact the administrator.";
+        setExtensionStatus(false);
+        downloadButton.disabled = true;
+      }
+
+      async function downloadRecord(record) {
+        const blobCheck = validateStoredBlob(record);
+
+        if (!blobCheck.valid) {
+          throw new Error(
+            "The current extension cannot be downloaded because its ZIP data is missing or corrupted."
+          );
+        }
+
+        const filename = sanitizeDownloadFilename(
+          record.fileName || record.extensionName || "extension"
+        );
+
+        let objectUrl = null;
+        let temporaryLink = null;
+
+        try {
+          if (typeof URL?.createObjectURL !== "function") {
+            throw new Error("This browser does not support temporary Blob download URLs.");
+          }
+
+          objectUrl = URL.createObjectURL(record.zipBlob);
+
+          temporaryLink = document.createElement("a");
+          temporaryLink.href = objectUrl;
+          temporaryLink.download = filename;
+          temporaryLink.textContent = "Download";
+          temporaryLink.style.display = "none";
+
+          document.body.appendChild(temporaryLink);
+          temporaryLink.click();
+          temporaryLink.remove();
+          temporaryLink = null;
+        } catch (error) {
+          if (temporaryLink?.isConnected) {
+            temporaryLink.remove();
+          }
+
+          console.error("Extension download failed.", error?.name || "UnknownError");
+          throw new Error(
+            "The extension ZIP could not be downloaded. Please try again."
+          );
+        } finally {
+          if (objectUrl) {
+            URL.revokeObjectURL(objectUrl);
+          }
+        }
+      }
+
+      async function handleDownload() {
+        if (!downloadButton) return;
+
+        downloadButton.disabled = true;
+        clearPublicError();
+
+        try {
+          const record = await getCurrentExtension();
+
+          if (!record) {
+            showPublicEmpty();
+            throw new Error("No extension is currently available.");
+          }
+
+          await downloadRecord(record);
+          showToast("Extension ZIP download started.", "success");
+        } catch (error) {
+          console.error("Public download workflow failed.", error?.name || "UnknownError");
+          showPublicError(
+            error?.message ||
+            "The extension could not be downloaded. Please try again."
+          );
+          showToast(
+            error?.message ||
+            "The extension could not be downloaded.",
+            "error"
+          );
+        } finally {
+          downloadButton.disabled = false;
+        }
+      }
+
+      async function initializePage() {
+        clearPublicError();
+
+        try {
+          if (!window.indexedDB) {
+            showPublicEmpty(
+              "IndexedDB is unavailable in this browser, so no local extension can be displayed."
+            );
+            showPublicError(
+              "Local browser storage is unavailable. Try running the portal from a local web server."
+            );
+            return;
+          }
+
+          const record = await getCurrentExtension();
+
+          if (!record) {
+            showPublicEmpty();
+            return;
+          }
+
+          renderExtension(record);
+        } catch (error) {
+          console.error("Public extension read failed.", error?.name || "UnknownError");
+          showPublicEmpty(
+            "The extension could not be read from local browser storage."
+          );
+          showPublicError(
+            error?.message ||
+            "The extension could not be read from local browser storage."
+          );
+        }
+      }
+
+      if (downloadButton) {
+        downloadButton.addEventListener("click", handleDownload);
+      }
+
+      initializePage();
+    });
+  </script>
+</body>
+</html>
